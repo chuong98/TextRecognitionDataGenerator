@@ -4,8 +4,7 @@ import os
 import random as rnd
 import numpy as np
 
-from PIL import Image, ImageDraw, ImageFilter
-
+from PIL import Image
 
 def gaussian_noise(height: int, width: int) -> Image:
     """
@@ -69,12 +68,12 @@ def image(height: int, width: int, image_dir: str) -> Image:
         if pic.size[0] < width:
             pic = pic.resize(
                 [width, int(pic.size[1] * (width / pic.size[0]))],
-                Image.Resampling.LANCZOS,
+                Image.LANCZOS,
             )
         if pic.size[1] < height:
             pic = pic.resize(
                 [int(pic.size[0] * (height / pic.size[1])), height],
-                Image.Resampling.LANCZOS,
+                Image.LANCZOS,
             )
 
         if pic.size[0] == width:
