@@ -1,5 +1,6 @@
 import os
 import random as rnd
+import numpy as np
 
 from PIL import Image, ImageFilter, ImageStat
 
@@ -19,7 +20,7 @@ class FakeTextDataGenerator(object):
         Same as generate, but takes all parameters as one tuple
         """
 
-        cls.generate(*t)
+        return cls.generate(*t)
 
     @classmethod
     def generate(
@@ -203,7 +204,7 @@ class FakeTextDataGenerator(object):
         #############################
 
         new_text_width, _ = resized_img.size
-
+        print(new_text_width)
         if alignment == 0 or width == -1:
             background_img.paste(resized_img, (margin_left, margin_top), resized_img)
             background_mask.paste(resized_mask, (margin_left, margin_top))
@@ -279,11 +280,38 @@ class FakeTextDataGenerator(object):
                         f.write(" ".join([str(v) for v in bbox]) + "\n")
             if output_bboxes == 2:
                 bboxes = mask_to_bboxes(final_mask, tess=True)
+                print("{} has number of char bboxes: {} and text: {}".format(image_name, len(bboxes), text))
                 with open(os.path.join(out_dir, tess_box_name), "w") as f:
+                    word_bboxes = []
+                    last_char_bbox = None
                     for bbox, char in zip(bboxes, text):
                         f.write(
                             " ".join([char] + [str(v) for v in bbox] + ["0"]) + "\n"
                         )
+                        if (last_char_bbox is None):
+                            word_bboxes.append(list(bbox))
+                        if (char == " " and last_char_bbox is not None):
+                            word_bboxes[-1][2:] = last_char_bbox[2:]
+                            last_char_bbox = None
+                        else:
+                            last_char_bbox = bbox
+                    if (last_char_bbox is not None):
+                        word_bboxes[-1][2:] = last_char_bbox[2:]
+                if (len(bboxes) == 0):
+                    char_bboxes, word_bboxes, words = None, None, None
+                else:
+                    char_bboxes = np.array(bboxes, dtype=np.float32)
+                    char_bboxes = np.concatenate([char_bboxes[:, [0, 1]], char_bboxes[:, [2, 1]], char_bboxes[:, [2, 3]], char_bboxes[:, [0, 3]]], axis=-1).reshape(-1, 4, 2)
+                    word_bboxes = np.array(word_bboxes, dtype=np.float32)
+                    word_bboxes = np.concatenate([word_bboxes[:, [0, 1]], word_bboxes[:, [2, 1]], word_bboxes[:, [2, 3]], word_bboxes[:, [0, 3]]], axis=-1).reshape(-1, 4, 2)
+                    words = np.array(text.split(), dtype='<U15')
+                item = {
+                    "img_name": image_name,
+                    "word_bboxes": word_bboxes,
+                    "char_bboxes": char_bboxes,
+                    "words": words
+                }
+                return item
         else:
             if output_mask == 1:
                 return final_image, final_mask

@@ -2,6 +2,7 @@ import argparse
 import errno
 import os
 import sys
+import pickle
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -99,6 +100,13 @@ def parse_arguments():
         nargs="?",
         help="Define how many words should be included in each generated sample. If the text source is Wikipedia, this is the MINIMUM length",
         default=1,
+    )
+    parser.add_argument(
+        "--maximum_length",
+        type=int,
+        nargs="?",
+        help="Maximum length words for a image",
+        default=5,
     )
     parser.add_argument(
         "-r",
@@ -351,6 +359,7 @@ def main():
 
     # Argument parsing
     args = parse_arguments()
+    print(args)
 
     # Create the directory if it does not exist.
     try:
@@ -392,6 +401,11 @@ def main():
 
     if args.use_wikipedia:
         strings = create_strings_from_wikipedia(args.length, args.count, args.language)
+
+        if (args.maximum_length is not None):
+            lengths = [args.maximum_length] * len(strings) if (not args.random) else [rnd.randint(args.length, args.maximum_length) for i in range(len(strings))]
+            strings = [" ".join(strings[i].split()[:lengths[i]]) for i in range(len(strings))]
+
     elif args.input_file != "":
         strings = create_strings_from_file(args.input_file, args.count)
     elif args.random_sequences:
@@ -435,7 +449,8 @@ def main():
     string_count = len(strings)
 
     p = Pool(args.thread_count)
-    for _ in tqdm(
+    outs = []
+    for item in tqdm(
         p.imap_unordered(
             FakeTextDataGenerator.generate_from_tuple,
             zip(
@@ -473,8 +488,11 @@ def main():
         ),
         total=args.count,
     ):
-        pass
+        outs.append(item)
     p.terminate()
+
+    with open(f"{args.output_dir}/annotations.pkl", "wb") as file:
+        pickle.dump(outs, file)
 
     if args.name_format == 2:
         # Create file with filename-to-label connections
@@ -487,7 +505,6 @@ def main():
                 if args.space_width == 0:
                     label = label.replace(" ", "")
                 f.write("{} {}\n".format(file_name, label))
-
-
+        
 if __name__ == "__main__":
     main()
