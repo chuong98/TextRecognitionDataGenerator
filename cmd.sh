@@ -4,5 +4,6 @@ python trdg/run.py --output_dir='out' \
     -rk -k 5 --name_format 2 \
     -obb 2 --distorsion 3 \
     --text_color '#000000,#888888' \
-    --font_dir=fonts --margins 10,10,10,10 
-    # -rs -let -num \
+    --font_dir=fonts --margins 10,10,10,10 \
+    -rs -let -num -sym 
+    # -dt "a,b,c,1,2,3"
