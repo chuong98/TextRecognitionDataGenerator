@@ -32,5 +32,5 @@
 
 # Special Chars
 python3 trdg/run.py --output_dir 'out' -l 'en' --count 5 \
-        -w 4 -r -t 1 -e 'jpg' -na 2 \
+        -w 4 -r -t 1 -e 'jpg' -na 2 -do -rk -k 10\
         -obb 2 -wd 768 -or 0 -fd 'fonts' -tc '#000000,#888888' -sw 1 -m 5,5,5,5 -f 64 -rs -let -sym -num
