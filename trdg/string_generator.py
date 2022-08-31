@@ -36,7 +36,7 @@ def create_strings_from_dict(
     strings = []
     for _ in range(0, count):
         current_string = ""
-        for _ in range(0, rnd.randint(1, length) if allow_variable else length):
+        for _ in range(0, rnd.randint(3, length) if allow_variable else length):
             current_string += lang_dict[rnd.randrange(dict_len)]
             current_string += " "
         strings.append(current_string[:-1])
@@ -128,12 +128,12 @@ def create_strings_randomly(
         max_seq_len = 2
     else:
         min_seq_len = 2
-        max_seq_len = 10
+        max_seq_len = 6
 
     strings = []
     for _ in range(0, count):
         current_string = ""
-        for _ in range(0, rnd.randint(1, length) if allow_variable else length):
+        for _ in range(0, rnd.randint(3, length) if allow_variable else length):
             seq_len = rnd.randint(min_seq_len, max_seq_len)
             current_string += "".join([rnd.choice(pool) for _ in range(seq_len)])
             current_string += " "

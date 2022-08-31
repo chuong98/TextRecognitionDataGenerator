@@ -31,6 +31,7 @@ def generate(
     word_split: bool,
     stroke_width: int = 0,
     stroke_fill: str = "#282828",
+    img_width: int=768,
 ) -> Tuple:
     if orientation == 0:
         return _generate_horizontal_text(
@@ -44,6 +45,7 @@ def generate(
             word_split,
             stroke_width,
             stroke_fill,
+            img_width
         )
     elif orientation == 1:
         return _generate_vertical_text(
@@ -82,6 +84,7 @@ def _generate_horizontal_text(
     word_split: bool,
     stroke_width: int = 0,
     stroke_fill: str = "#282828",
+    img_width: int =768,
 ) -> Tuple:
     image_font = ImageFont.truetype(font=font, size=font_size)
 
@@ -100,12 +103,28 @@ def _generate_horizontal_text(
         _compute_character_width(image_font, p) if p != " " else space_width
         for p in splitted_text
     ]
+    # trim the text to be inside the image
+    def trim_text(text, piece_widths, max_width=768):
+        width_, count_idx=0,0
+        for i,w_ in enumerate(piece_widths):
+            width_ += w_ 
+            if width_ > int(0.95*max_width):
+                count_idx = i
+                break
+        text= ' '.join(text[:count_idx].split(' ')[:-1])
+        count_idx = len(text)
+        piece_widths=piece_widths[:count_idx]
+        return text, piece_widths
+
     text_width = sum(piece_widths)
+    while text_width > img_width:
+        text, piece_widths = trim_text(text, piece_widths, img_width)
+        text_width = sum(piece_widths)
+    splitted_text = text
     if not word_split:
         text_width += character_spacing * (len(text) - 1)
 
     text_height = max([get_text_height(image_font, p) for p in splitted_text])
-
     txt_img = Image.new("RGBA", (text_width, text_height), (0, 0, 0, 0))
     txt_mask = Image.new("RGB", (text_width, text_height), (0, 0, 0))
 
@@ -148,11 +167,11 @@ def _generate_horizontal_text(
             stroke_width=stroke_width,
             stroke_fill=stroke_fill,
         )
-
+    
     if fit:
-        return txt_img.crop(txt_img.getbbox()), txt_mask.crop(txt_img.getbbox())
+        return txt_img.crop(txt_img.getbbox()), txt_mask.crop(txt_img.getbbox()), text
     else:
-        return txt_img, txt_mask
+        return txt_img, txt_mask, text
 
 
 def _generate_vertical_text(

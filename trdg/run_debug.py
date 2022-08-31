@@ -349,12 +349,6 @@ def parse_arguments():
         help="Define the image mode to be used. RGB is default, L means 8-bit grayscale images, 1 means 1-bit binary images stored with one pixel per byte, etc.",
         default="RGB",
     )
-    parser.add_argument(
-        "-msl", "--max_sentence_len",
-        type=int,
-        help="maximum number of characters in a sentence",
-        default=40,
-    )
     return parser.parse_args()
 
 
@@ -423,7 +417,6 @@ def main():
             args.include_numbers,
             args.include_symbols,
             args.language,
-            args.max_sentence_len
         )
         # Set a name format compatible with special characters automatically if they are used
         if args.include_symbols or True not in (
@@ -455,51 +448,40 @@ def main():
 
     string_count = len(strings)
 
-    p = Pool(args.thread_count)
-    outs = []
-    for item in tqdm(
-        p.imap_unordered(
-            FakeTextDataGenerator.generate_from_tuple,
-            zip(
-                [i for i in range(0, string_count)],
-                strings,
-                [fonts[rnd.randrange(0, len(fonts))] for _ in range(0, string_count)],
-                [args.output_dir] * string_count,
-                [args.format] * string_count,
-                [args.extension] * string_count,
-                [args.skew_angle] * string_count,
-                [args.random_skew] * string_count,
-                [args.blur] * string_count,
-                [args.random_blur] * string_count,
-                [args.background] * string_count,
-                [args.distorsion] * string_count,
-                [args.distorsion_orientation] * string_count,
-                [args.handwritten] * string_count,
-                [args.name_format] * string_count,
-                [args.width] * string_count,
-                [args.alignment] * string_count,
-                [args.text_color] * string_count,
-                [args.orientation] * string_count,
-                [args.space_width] * string_count,
-                [args.character_spacing] * string_count,
-                [args.margins] * string_count,
-                [args.fit] * string_count,
-                [args.output_mask] * string_count,
-                [args.word_split] * string_count,
-                [args.image_dir] * string_count,
-                [args.stroke_width] * string_count,
-                [args.stroke_fill] * string_count,
-                [args.image_mode] * string_count,
-                [args.output_bboxes] * string_count,
-            ),
-        ),
-        total=args.count,
-    ):
-        outs.append(item)
-    p.terminate()
-
-    with open(f"{args.output_dir}/annotations.pkl", "wb") as file:
-        pickle.dump(outs, file)
+    for i in tqdm(range(0, string_count)):
+        FakeTextDataGenerator.generate(
+                i,
+                strings[i],
+                fonts[rnd.randrange(0, len(fonts))],
+                args.output_dir,
+                args.format,
+                args.extension,
+                args.skew_angle,
+                (rnd.random() > 0.5), #args.random_skew
+                args.blur,
+                (rnd.random() > 0.5), #random blur
+                rnd.choice([0,3]), # args.background,
+                rnd.randrange(0,3), # args.distorsion,
+                rnd.randrange(0,3), # random  orientation
+                args.handwritten,
+                args.name_format,
+                args.width,
+                rnd.randrange(0,3), #random align
+                args.text_color,
+                args.orientation,
+                rnd.randrange(1,3), #random space width
+                args.character_spacing,
+                args.margins,
+                args.fit,
+                args.output_mask,
+                args.word_split,
+                args.image_dir,
+                args.stroke_width,
+                args.stroke_fill,
+                args.image_mode,
+                args.output_bboxes,
+                )
+            
 
     if args.name_format == 2:
         # Create file with filename-to-label connections

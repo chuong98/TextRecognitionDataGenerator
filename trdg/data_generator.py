@@ -1,3 +1,4 @@
+from distutils import text_file
 import os
 import random as rnd
 import numpy as np
@@ -70,7 +71,7 @@ class FakeTextDataGenerator(object):
                 raise ValueError("Vertical handwritten text is unavailable")
             image, mask = handwritten_text_generator.generate(text, text_color)
         else:
-            image, mask = computer_text_generator.generate(
+            image, mask, text = computer_text_generator.generate(
                 text,
                 font,
                 text_color,
@@ -82,6 +83,7 @@ class FakeTextDataGenerator(object):
                 word_split,
                 stroke_width,
                 stroke_fill,
+                width
             )
         random_angle = rnd.randint(0 - skewing_angle, skewing_angle)
 
@@ -204,7 +206,6 @@ class FakeTextDataGenerator(object):
         #############################
 
         new_text_width, _ = resized_img.size
-        print(new_text_width)
         if alignment == 0 or width == -1:
             background_img.paste(resized_img, (margin_left, margin_top), resized_img)
             background_mask.paste(resized_mask, (margin_left, margin_top))
@@ -280,7 +281,7 @@ class FakeTextDataGenerator(object):
                         f.write(" ".join([str(v) for v in bbox]) + "\n")
             if output_bboxes == 2:
                 bboxes = mask_to_bboxes(final_mask, tess=True)
-                print("{} has number of char bboxes: {} and text: {}".format(image_name, len(bboxes), text))
+                # print("{} has font: {}".format(image_name, font))
                 with open(os.path.join(out_dir, tess_box_name), "w") as f:
                     word_bboxes = []
                     last_char_bbox = None
@@ -298,6 +299,7 @@ class FakeTextDataGenerator(object):
                     if (last_char_bbox is not None):
                         word_bboxes[-1][2:] = last_char_bbox[2:]
                 if (len(bboxes) == 0):
+                    print("{} has number of char bboxes: {}, font: {}, and text: {}".format(image_name, len(bboxes), font, text))
                     char_bboxes, word_bboxes, words = None, None, None
                 else:
                     char_bboxes = np.array(bboxes, dtype=np.float32)
