@@ -27,8 +27,8 @@
 
 
 # WIKI or Dict
-python3 trdg/run_debug.py --output_dir 'out' -l 'en' --count 20 \
-        -w 10 -t 1 -e 'jpg' -na 2 --fit \
+python3 trdg/run.py --output_dir 'out' -l 'en' --count 20 \
+        -w 10 -t 4 -e 'jpg' -na 2 --fit \
         -obb 2 -wd 768 -or 0 -fd 'fonts' -tc '#000000,#888888' -sw 1 -m 2,2,2,2 -f 32 \
         -d 1 -do 1 -rk -k 2 -id 'backgrounds'
 

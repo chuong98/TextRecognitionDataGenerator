@@ -468,19 +468,19 @@ def main():
                 [args.format] * string_count,
                 [args.extension] * string_count,
                 [args.skew_angle] * string_count,
-                [args.random_skew] * string_count,
+                [(rnd.random() > 0.5) for _ in range(string_count)] , #args.random_skew
                 [args.blur] * string_count,
-                [args.random_blur] * string_count,
-                [args.background] * string_count,
-                [args.distorsion] * string_count,
-                [args.distorsion_orientation] * string_count,
+                [(rnd.random() > 0.5) for _ in range(string_count)], #args.random_blur
+                [rnd.choice([0,3]) for _ in range(string_count)],   #args.background
+                [rnd.randrange(0,3) for _ in range(string_count)] , # args.distorsion
+                [rnd.randrange(0,3) for _ in range(string_count)] , #args.distorsion_orientation
                 [args.handwritten] * string_count,
                 [args.name_format] * string_count,
                 [args.width] * string_count,
-                [args.alignment] * string_count,
+                [rnd.randrange(0,3) for _ in range(string_count)], #args.alignment
                 [args.text_color] * string_count,
                 [args.orientation] * string_count,
-                [args.space_width] * string_count,
+                [rnd.randrange(1,3) for _ in range(string_count)], #args.space_width
                 [args.character_spacing] * string_count,
                 [args.margins] * string_count,
                 [args.fit] * string_count,
