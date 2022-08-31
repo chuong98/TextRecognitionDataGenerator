@@ -473,7 +473,7 @@ def main():
                 [(rnd.random() > 0.5) for _ in range(string_count)], #args.random_blur
                 [rnd.choice([0,3]) for _ in range(string_count)],   #args.background
                 [rnd.randrange(0,3) for _ in range(string_count)] , # args.distorsion
-                [rnd.randrange(0,3) for _ in range(string_count)] , #args.distorsion_orientation
+                [rnd.randrange(0,2) for _ in range(string_count)] , #args.distorsion_orientation
                 [args.handwritten] * string_count,
                 [args.name_format] * string_count,
                 [args.width] * string_count,
